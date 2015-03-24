@@ -240,6 +240,20 @@ def train_bw_station():
             if train_bw.status_code == requests.codes.ok:
                 beep()
                 train_bw_response = train_bw.json()
+                for item in items in train_bw_response:
+                    print item
+        except requests.exceptions.RequestException as e:
+            print 'Can\'t fetch Train data fom server.'
+            print 'The server couldn\'t fulfill the request.'
+            for items in e:
+                print items
+                print '-'*50
+            entry = raw_input('Want to retry or quit(r/q)???\n')
+            print '-'*50
+            if entry.lower() == 'r':
+                done = False
+            if entry.lower() == 'q':
+                done = True
                 
 
 def beep():
