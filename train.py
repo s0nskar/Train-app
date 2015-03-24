@@ -16,6 +16,31 @@ def menu_screen():
     print'Press h for help.'
     print'+'*50
 
+def menu():
+    done1 = False
+    while not done1:
+        menu_screen()
+        uinput = raw_input()
+        if uinput == 'h':
+            help()
+        elif uinput == '1':
+            train_code()
+        elif uinput == '2':
+            train_arrivals_at_station()
+        elif uinput == '3':
+            live_train_status()
+        elif uinput == '4':
+            train_bw_station()
+        elif uinput == '5':
+            train_route_information()
+        elif uinput == '6':
+            pnr_status()
+        elif uinput == '7':
+            train_fare_enquery()
+        elif uinput == '8':
+            station = raw_input('Enter name of station :')
+            station_code(station)
+
 def pnr_status():
     done = False
     while not done:
@@ -64,7 +89,7 @@ def train_arrivals_at_station():
         location_input = raw_input('Use your current location code (y/n)\n')
         if location_input.lower() == 'y':
             city = str(city)
-            city = city.lower
+            city_ = city.lower()
             station = station_code(city_)
         if location_input.lower() == 'n':
             print('(If you dont\'t know station code,refer option 1 in option menu.)')
@@ -96,9 +121,9 @@ def train_arrivals_at_station():
                 print '-'*50
             entry = raw_input('Want to retry or quit(r/q)???\n')
             print '-'*50
-            if entry.lower == 'r':
+            if entry.lower() == 'r':
                 done = False
-            if entry.lower == 'q':
+            if entry.lower() == 'q':
                 done = True
 
 def station_code(station):
@@ -128,14 +153,21 @@ def station_code(station):
                 print '-'*50
             entry = raw_input('Want to retry or quit(r/q)???\n')
             print '-'*50
-            if entry.lower == 'r':
+            if entry.lower() == 'r':
                 done = False
-            if entry.lower == 'q':
+            if entry.lower() == 'q':
                 done = True
 
 def live_train_status():
-    station = raw_input('Enter station name: ')
-    date= raw_input('Enter date of journey(yyyymmdd): ')
+    done =False
+    while not done:
+        station = raw_input('Enter station name: ')
+        date= raw_input('Enter date of journey(yyyymmdd): ')
+        if date.isdigit() and len(date)== 8:
+            done =True
+        else:
+            print '-'*50+'Enter Data In Valid Format'+'-'*50
+
     done = False
     while not done:
         try:
@@ -162,16 +194,58 @@ def live_train_status():
                 print '-'*50
             entry = raw_input('Want to retry or quit(r/q)???\n')
             print '-'*50
-            if entry.lower == 'r':
+            if entry.lower() == 'r':
                 done = False
-            if entry.lower == 'q':
+            if entry.lower() == 'q':
                 done = True
 
+def train_route_information():
+    train = raw_input('Enter train number: ')
+    done = True
+    while not done:
+        try:
+            train_route  = requests.get('http://api.railwayapi.com/route/train/'+train+'/apikey/57252/')
+            if train_route.station_code == requests.codes.ok:
+                beep()
+                train_route_response = train_route.json()
+                for item in items in train_route_response:
+                    print item
+                print('Press any key for exit.')
+                entry = raw_input('')
+                print '-'*50
+                if len(entry)!=0:
+                    done = True
+                else:
+                    done = False 
+        except requests.exceptions.RequestException as e:
+            print 'Can\'t fetch Train data fom server.'
+            print 'The server couldn\'t fulfill the request.'
+            for items in e:
+                print items
+                print '-'*50
+            entry = raw_input('Want to retry or quit(r/q)???\n')
+            print '-'*50
+            if entry.lower() == 'r':
+                done = False
+            if entry.lower() == 'q':
+                done = True
 
+def train_bw_station():
+    source_station = raw_input('Enter source station: ')
+    destination = raw_input('Enter Destination: ')
+    done = True
+    while not done:
+        try:
+            train_bw = requests.get('http://api.railwayapi.com/between/source/'+source_station+'/dest/'+destination+'/apikey/57252/')
+            if train_bw.status_code == requests.codes.ok:
+                beep()
+                train_bw_response = train_bw.json()
+                
 
 def beep():
     winsound.Beep(10000,500)
 
+print '*'*75+'\n'+'-'*75
 try:
     connectivity = requests.get('https://www.google.co.in/')
     if connectivity.status_code == requests.codes.ok:
@@ -212,6 +286,8 @@ try:
                                 for items in weather_respnse[i]:
                                     print items,':',weather_respnse[i][items]
                                 print '+'*50
+
+                        menu()
                 except requests.exceptions.RequestException as e:
                     print 'Can\'t fetch weather data'
                     print 'The server couldn\'t fulfill the request.'
@@ -230,26 +306,4 @@ except requests.exceptions.RequestException as e:
     print 'The server couldn\'t fulfill the request.'
     for items in e:
         print items
-done1 = False
-while not done1:
-    menu_screen()
-    uinput = raw_input()
-    if uinput == 'h':
-        help()
-    elif uinput == '1':
-        train_code()
-    elif uinput == '2':
-        train_arrivals_at_station()
-    elif uinput == '3':
-        live_train_status()
-    elif uinput == '4':
-        train_bw_station()
-    elif uinput == '5':
-        train_route_information()
-    elif uinput == '6':
-        pnr_status()
-    elif uinput == '7':
-        train_fare_enquery()
-    elif uinput == '8':
-        station = raw_input('Enter name of station :')
-        station_code(station)
+print '*'*75
